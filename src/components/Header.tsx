@@ -38,8 +38,8 @@ export const Header = () => {
 
           {/* CTA Buttons */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button variant="ghost">Login</Button>
-            <Button variant="medical">Get Started</Button>
+            <Button variant="ghost" onClick={() => window.location.href = '/doctor-auth'}>Doctor Sign In</Button>
+            <Button variant="medical" onClick={() => window.location.href = '/patient-auth'}>Patient Sign Up</Button>
           </div>
 
           {/* Mobile Menu Button */}
@@ -91,11 +91,11 @@ export const Header = () => {
                 Contact
               </a>
               <div className="flex flex-col space-y-2 pt-4">
-                <Button variant="ghost" onClick={() => setIsMenuOpen(false)}>
-                  Login
+                <Button variant="ghost" onClick={() => { setIsMenuOpen(false); window.location.href = '/doctor-auth'; }}>
+                  Doctor Sign In
                 </Button>
-                <Button variant="medical" onClick={() => setIsMenuOpen(false)}>
-                  Get Started
+                <Button variant="medical" onClick={() => { setIsMenuOpen(false); window.location.href = '/patient-auth'; }}>
+                  Patient Sign Up
                 </Button>
               </div>
             </div>
