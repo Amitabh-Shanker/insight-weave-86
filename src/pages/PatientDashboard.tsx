@@ -1,8 +1,17 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, ArrowLeft } from "lucide-react";
+import { Heart, LogOut } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import SymptomAnalyzer from "@/components/SymptomAnalyzer";
 
 const PatientDashboard = () => {
+  const { signOut } = useAuth();
+
+  const handleLogout = async () => {
+    await signOut();
+    window.location.href = '/';
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -14,62 +23,20 @@ const PatientDashboard = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-foreground">Patient Dashboard</h1>
-              <p className="text-muted-foreground">Phase 2 Feature - Coming Soon</p>
+              <p className="text-muted-foreground">AI-Powered Symptom Analysis</p>
             </div>
           </div>
           <Button
-            variant="ghost"
-            onClick={() => window.location.href = '/'}
+            variant="outline"
+            onClick={handleLogout}
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Back to Home
+            <LogOut className="w-4 h-4 mr-2" />
+            Logout
           </Button>
         </div>
 
-        {/* Placeholder Content */}
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Health Records</CardTitle>
-              <CardDescription>
-                View and manage your medical history, prescriptions, and test results
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This feature will be available in Phase 2 of the CareNexus platform.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Appointments</CardTitle>
-              <CardDescription>
-                Schedule and manage your healthcare appointments
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This feature will be available in Phase 2 of the CareNexus platform.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Symptom Tracker</CardTitle>
-              <CardDescription>
-                Log your symptoms and get AI-powered health insights
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This feature will be available in Phase 2 of the CareNexus platform.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+        {/* Symptom Analyzer */}
+        <SymptomAnalyzer />
       </div>
     </div>
   );
