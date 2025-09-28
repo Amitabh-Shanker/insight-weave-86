@@ -1,6 +1,7 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   Search, 
   Video, 
@@ -13,6 +14,15 @@ import {
 } from "lucide-react";
 
 export const ServicesSection = () => {
+  const { user } = useAuth();
+
+  const handleStartAnalysis = () => {
+    if (user) {
+      window.location.href = '/patient-dashboard';
+    } else {
+      window.location.href = '/patient-auth';
+    }
+  };
   const services = [
     {
       icon: Search,
@@ -166,7 +176,7 @@ export const ServicesSection = () => {
                 Experience the future of healthcare with our AI-powered platform. 
                 Start your health analysis today.
               </CardDescription>
-              <Button size="lg" variant="medical" className="mt-4">
+              <Button size="lg" variant="medical" className="mt-4" onClick={handleStartAnalysis}>
                 Start Free Analysis
               </Button>
             </div>

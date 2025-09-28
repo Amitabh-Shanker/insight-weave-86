@@ -120,47 +120,6 @@ export const FeaturesSection = () => {
           ))}
         </div>
 
-        {/* Technical Architecture */}
-        <div className="mt-16 p-8 rounded-2xl bg-gradient-health border border-border">
-          <div className="text-center space-y-4 mb-8">
-            <h3 className="text-2xl font-bold">Technical Architecture</h3>
-            <p className="text-muted-foreground">Built for scalability and ML model integration</p>
-          </div>
-          
-          <div className="grid md:grid-cols-4 gap-6">
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                <MessageSquare className="w-6 h-6 text-primary" />
-              </div>
-              <h4 className="font-semibold">React Frontend</h4>
-              <p className="text-sm text-muted-foreground">Modern, responsive UI</p>
-            </div>
-            
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                <Stethoscope className="w-6 h-6 text-primary" />
-              </div>
-              <h4 className="font-semibold">Flask Backend</h4>
-              <p className="text-sm text-muted-foreground">Python API server</p>
-            </div>
-            
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                <Brain className="w-6 h-6 text-primary" />
-              </div>
-              <h4 className="font-semibold">ML Models</h4>
-              <p className="text-sm text-muted-foreground">Text & image analysis</p>
-            </div>
-            
-            <div className="text-center space-y-2">
-              <div className="w-12 h-12 mx-auto rounded-lg bg-primary/10 flex items-center justify-center">
-                <Shield className="w-6 h-6 text-primary" />
-              </div>
-              <h4 className="font-semibold">PostgreSQL</h4>
-              <p className="text-sm text-muted-foreground">Secure data storage</p>
-            </div>
-          </div>
-        </div>
       </div>
     </section>
   );

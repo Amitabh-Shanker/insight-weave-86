@@ -1,9 +1,20 @@
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ArrowRight, Brain, MessageSquare, Camera } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import heroImage from "@/assets/hero-healthcare.jpg";
 
 export const HeroSection = () => {
+  const { user } = useAuth();
+
+  const handleStartAnalysis = () => {
+    if (user) {
+      window.location.href = '/patient-dashboard';
+    } else {
+      window.location.href = '/patient-auth';
+    }
+  };
+
   return (
     <section id="home" className="relative min-h-screen flex items-center justify-center bg-gradient-health pt-20">
       <div className="container mx-auto px-4 py-16">
@@ -48,20 +59,17 @@ export const HeroSection = () => {
             </div>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" variant="medical" className="group">
+            <div className="flex justify-center sm:justify-start">
+              <Button size="lg" variant="medical" className="group" onClick={handleStartAnalysis}>
                 Start Your Health Analysis
                 <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
-              </Button>
-              <Button size="lg" variant="outline">
-                Watch Demo
               </Button>
             </div>
 
             {/* Stats */}
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-border">
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">95%</div>
+                <div className="text-2xl font-bold text-primary">85%</div>
                 <div className="text-sm text-muted-foreground">Accuracy Rate</div>
               </div>
               <div className="text-center">
