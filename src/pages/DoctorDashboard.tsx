@@ -1,8 +1,35 @@
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Stethoscope, ArrowLeft } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { DashboardStats } from "@/components/doctor/DashboardStats";
+import { AppointmentManagement } from "@/components/doctor/AppointmentManagement";
+import { PatientRecords } from "@/components/doctor/PatientRecords";
+import { useNavigate } from "react-router-dom";
 
 const DoctorDashboard = () => {
+  const { user, loading } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate('/doctor-auth');
+    }
+  }, [user, loading, navigate]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return null;
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-4 py-8">
@@ -14,62 +41,38 @@ const DoctorDashboard = () => {
             </div>
             <div>
               <h1 className="text-3xl font-bold text-foreground">Doctor Dashboard</h1>
-              <p className="text-muted-foreground">Phase 2 Feature - Coming Soon</p>
+              <p className="text-muted-foreground">Manage appointments and patient records</p>
             </div>
           </div>
           <Button
             variant="ghost"
-            onClick={() => window.location.href = '/'}
+            onClick={() => navigate('/')}
           >
             <ArrowLeft className="w-4 h-4 mr-2" />
             Back to Home
           </Button>
         </div>
 
-        {/* Placeholder Content */}
-        <div className="grid gap-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Patient Management</CardTitle>
-              <CardDescription>
-                View and manage your patient roster and medical records
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This feature will be available in Phase 2 of the CareNexus platform.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>AI Triage Queue</CardTitle>
-              <CardDescription>
-                Review AI-prioritized patient cases and symptoms
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This feature will be available in Phase 2 of the CareNexus platform.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Telemedicine</CardTitle>
-              <CardDescription>
-                Conduct virtual consultations with patients
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-muted-foreground">
-                This feature will be available in Phase 3 of the CareNexus platform.
-              </p>
-            </CardContent>
-          </Card>
+        {/* Dashboard Stats */}
+        <div className="mb-8">
+          <DashboardStats doctorId={user.id} />
         </div>
+
+        {/* Main Content */}
+        <Tabs defaultValue="appointments" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="appointments">Appointments</TabsTrigger>
+            <TabsTrigger value="records">Patient Records</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="appointments" className="space-y-4">
+            <AppointmentManagement doctorId={user.id} />
+          </TabsContent>
+
+          <TabsContent value="records" className="space-y-4">
+            <PatientRecords doctorId={user.id} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
