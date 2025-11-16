@@ -9,6 +9,7 @@ import PatientAuth from "./pages/PatientAuth";
 import DoctorAuth from "./pages/DoctorAuth";
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
+import QuestionnaireOnboarding from "./pages/QuestionnaireOnboarding";
 import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/" element={<Index />} />
             <Route path="/patient-auth" element={<PatientAuth />} />
             <Route path="/doctor-auth" element={<DoctorAuth />} />
+            <Route path="/questionnaire" element={<QuestionnaireOnboarding />} />
             <Route path="/patient-dashboard" element={<PatientDashboard />} />
             <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
             <Route path="/admin" element={<Admin />} />
