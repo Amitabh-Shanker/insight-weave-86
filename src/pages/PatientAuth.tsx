@@ -8,18 +8,27 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { patientSignUpSchema, signInSchema } from "@/lib/validations";
+import { supabase } from "@/integrations/supabase/client";
 
 const PatientAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, checkQuestionnaireCompleted } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
-      navigate('/patient-dashboard');
-    }
-  }, [user, navigate]);
+    const checkAndRedirect = async () => {
+      if (user) {
+        const isCompleted = await checkQuestionnaireCompleted();
+        if (isCompleted) {
+          navigate('/patient-dashboard');
+        } else {
+          navigate('/questionnaire');
+        }
+      }
+    };
+    checkAndRedirect();
+  }, [user, navigate, checkQuestionnaireCompleted]);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -37,7 +46,13 @@ const PatientAuth = () => {
       const { error } = await signIn(validation.email, validation.password);
       
       if (!error) {
-        navigate('/patient-dashboard');
+        // Check if questionnaire is completed
+        const isCompleted = await checkQuestionnaireCompleted();
+        if (isCompleted) {
+          navigate('/patient-dashboard');
+        } else {
+          navigate('/questionnaire');
+        }
       }
     } catch (error: any) {
       if (error.errors) {
@@ -77,7 +92,19 @@ const PatientAuth = () => {
       const { error } = await signUp(validation.email, validation.password, userData);
       
       if (!error) {
-        // User will be redirected after email verification
+        // Send confirmation email
+        try {
+          await supabase.functions.invoke('send-confirmation-email', {
+            body: {
+              email: validation.email,
+              firstName: validation.firstName,
+              lastName: validation.lastName
+            }
+          });
+        } catch (emailError) {
+          console.error('Error sending confirmation email:', emailError);
+          // Don't block registration if email fails
+        }
       }
     } catch (error: any) {
       if (error.errors) {

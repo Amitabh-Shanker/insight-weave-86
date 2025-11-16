@@ -11,6 +11,7 @@ interface AuthContextType {
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   getUserProfile: () => Promise<any>;
+  checkQuestionnaireCompleted: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -117,6 +118,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return data;
   };
 
+  const checkQuestionnaireCompleted = async () => {
+    if (!user) return false;
+    
+    const { data, error } = await supabase
+      .from('patient_questionnaire')
+      .select('id')
+      .eq('patient_id', user.id)
+      .single();
+
+    if (error) {
+      console.error('Error checking questionnaire:', error);
+      return false;
+    }
+
+    return !!data;
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
@@ -125,7 +143,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       signUp,
       signIn,
       signOut,
-      getUserProfile
+      getUserProfile,
+      checkQuestionnaireCompleted
     }}>
       {children}
     </AuthContext.Provider>

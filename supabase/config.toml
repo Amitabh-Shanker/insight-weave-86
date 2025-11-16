@@ -9,3 +9,6 @@ max_rows = 1000
 
 [functions.analyze-symptoms]
 verify_jwt = false
+
+[functions.send-confirmation-email]
+verify_jwt = false
