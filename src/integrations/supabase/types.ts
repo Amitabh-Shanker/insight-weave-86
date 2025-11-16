@@ -198,6 +198,63 @@ export type Database = {
           },
         ]
       }
+      patient_questionnaire: {
+        Row: {
+          age: number | null
+          allergies: string | null
+          chronic_conditions: string | null
+          created_at: string
+          doctor_contact_preference: boolean | null
+          gender: string | null
+          id: string
+          issue_duration: string | null
+          medications: string | null
+          pain_level: number | null
+          past_surgeries: string | null
+          patient_id: string
+          primary_concern: string | null
+          recent_travel: string | null
+          substance_use: string | null
+          updated_at: string
+        }
+        Insert: {
+          age?: number | null
+          allergies?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          doctor_contact_preference?: boolean | null
+          gender?: string | null
+          id?: string
+          issue_duration?: string | null
+          medications?: string | null
+          pain_level?: number | null
+          past_surgeries?: string | null
+          patient_id: string
+          primary_concern?: string | null
+          recent_travel?: string | null
+          substance_use?: string | null
+          updated_at?: string
+        }
+        Update: {
+          age?: number | null
+          allergies?: string | null
+          chronic_conditions?: string | null
+          created_at?: string
+          doctor_contact_preference?: boolean | null
+          gender?: string | null
+          id?: string
+          issue_duration?: string | null
+          medications?: string | null
+          pain_level?: number | null
+          past_surgeries?: string | null
+          patient_id?: string
+          primary_concern?: string | null
+          recent_travel?: string | null
+          substance_use?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       prescriptions: {
         Row: {
           appointment_id: string | null
