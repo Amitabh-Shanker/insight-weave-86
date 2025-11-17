@@ -30,7 +30,7 @@ const handler = async (req: Request): Promise<Response> => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "CareNexus <onboarding@resend.dev>",
+        from: "CareNexus <noreply@yourdomain.com>",
         to: [email],
         subject: "Welcome to CareNexus!",
         html: `
