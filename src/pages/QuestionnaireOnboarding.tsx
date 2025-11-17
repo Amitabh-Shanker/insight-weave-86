@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -13,8 +13,39 @@ import { useNavigate } from "react-router-dom";
 const QuestionnaireOnboarding = () => {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const checkExistingQuestionnaire = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/patient-auth');
+          return;
+        }
+
+        const { data, error } = await supabase
+          .from('patient_questionnaire')
+          .select('id')
+          .eq('patient_id', user.id)
+          .maybeSingle();
+
+        if (data) {
+          // Questionnaire already completed, redirect to dashboard
+          navigate('/patient-dashboard');
+        }
+      } catch (error) {
+        console.error('Error checking questionnaire:', error);
+      } finally {
+        setChecking(false);
+      }
+    };
+
+    checkExistingQuestionnaire();
+  }, [navigate]);
 
   const [answers, setAnswers] = useState({
     age: "",
@@ -188,6 +219,14 @@ const QuestionnaireOnboarding = () => {
       [currentQ.id]: value
     });
   };
+
+  if (checking) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
