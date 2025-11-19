@@ -1,7 +1,11 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, Clock, MessageSquareText, Mic, Image as ImageIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertTriangle, Clock, MessageSquareText, Mic, Image as ImageIcon, Calendar } from "lucide-react";
 import { format } from "date-fns";
+import { AppointmentBooking } from "@/components/patient/AppointmentBooking";
 
 interface AnalysisResult {
   id: string;
@@ -21,6 +25,9 @@ interface AnalysisResultsProps {
 }
 
 const AnalysisResults = ({ analyses }: AnalysisResultsProps) => {
+  const [showBooking, setShowBooking] = useState(false);
+  const [selectedAnalysis, setSelectedAnalysis] = useState<AnalysisResult | null>(null);
+
   if (analyses.length === 0) {
     return (
       <Card>
@@ -62,6 +69,25 @@ const AnalysisResults = ({ analyses }: AnalysisResultsProps) => {
       default:
         return 'bg-muted text-muted-foreground';
     }
+  };
+
+  const shouldShowBooking = (analysis: AnalysisResult) => {
+    const severity = analysis.analysis.severity?.toLowerCase() || '';
+    const recommendations = Array.isArray(analysis.analysis.recommendations) 
+      ? analysis.analysis.recommendations.join(' ').toLowerCase() 
+      : '';
+    const isUrgent = analysis.analysis.urgency || false;
+    
+    return isUrgent || 
+           severity === 'high' || 
+           recommendations.includes('see a doctor') ||
+           recommendations.includes('medical attention') ||
+           recommendations.includes('consult');
+  };
+
+  const handleBookAppointment = (analysis: AnalysisResult) => {
+    setSelectedAnalysis(analysis);
+    setShowBooking(true);
   };
 
   return (
@@ -131,9 +157,41 @@ const AnalysisResults = ({ analyses }: AnalysisResultsProps) => {
                 </ul>
               </div>
             </div>
+
+            {shouldShowBooking(result) && (
+              <div className="pt-4 border-t">
+                <Button 
+                  onClick={() => handleBookAppointment(result)}
+                  className="w-full"
+                >
+                  <Calendar className="w-4 h-4 mr-2" />
+                  Book Appointment with Doctor
+                </Button>
+              </div>
+            )}
           </CardContent>
         </Card>
       ))}
+
+      <Dialog open={showBooking} onOpenChange={setShowBooking}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Book an Appointment</DialogTitle>
+          </DialogHeader>
+          <AppointmentBooking 
+            analysisData={selectedAnalysis ? {
+              symptoms: Array.isArray(selectedAnalysis.analysis.symptoms) 
+                ? selectedAnalysis.analysis.symptoms.join(', ') 
+                : '',
+              severity: selectedAnalysis.analysis.severity || '',
+              recommendations: Array.isArray(selectedAnalysis.analysis.recommendations)
+                ? selectedAnalysis.analysis.recommendations.join('\n')
+                : ''
+            } : undefined}
+            onSuccess={() => setShowBooking(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

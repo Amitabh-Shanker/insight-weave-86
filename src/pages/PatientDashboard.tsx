@@ -1,8 +1,11 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Heart, LogOut } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Heart, LogOut, Calendar, Activity } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import SymptomAnalyzer from "@/components/SymptomAnalyzer";
+import { MyAppointments } from "@/components/patient/MyAppointments";
+import { AppointmentBooking } from "@/components/patient/AppointmentBooking";
 
 const PatientDashboard = () => {
   const { signOut } = useAuth();
@@ -35,8 +38,35 @@ const PatientDashboard = () => {
           </Button>
         </div>
 
-        {/* Symptom Analyzer */}
-        <SymptomAnalyzer />
+        {/* Main Content */}
+        <Tabs defaultValue="analyze" className="space-y-6">
+          <TabsList>
+            <TabsTrigger value="analyze">
+              <Activity className="w-4 h-4 mr-2" />
+              Symptom Analysis
+            </TabsTrigger>
+            <TabsTrigger value="appointments">
+              <Calendar className="w-4 h-4 mr-2" />
+              My Appointments
+            </TabsTrigger>
+            <TabsTrigger value="book">
+              <Calendar className="w-4 h-4 mr-2" />
+              Book Appointment
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="analyze">
+            <SymptomAnalyzer />
+          </TabsContent>
+
+          <TabsContent value="appointments">
+            <MyAppointments />
+          </TabsContent>
+
+          <TabsContent value="book">
+            <AppointmentBooking />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
