@@ -36,24 +36,29 @@ export const AppointmentBooking = ({ analysisData, onSuccess }: AppointmentBooki
     analysisData ? `Symptoms: ${analysisData.symptoms}\nSeverity: ${analysisData.severity}` : ""
   );
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isLoadingDoctors, setIsLoadingDoctors] = useState(true);
 
   useEffect(() => {
     fetchDoctors();
   }, []);
 
   const fetchDoctors = async () => {
+    setIsLoadingDoctors(true);
     const { data, error } = await supabase
       .from("profiles")
       .select("user_id, first_name, last_name, specialty")
-      .eq("user_type", "doctor");
+      .eq("user_type", "doctor")
+      .order("first_name", { ascending: true });
 
     if (error) {
       console.error("Error fetching doctors:", error);
       toast.error("Failed to load doctors");
+      setIsLoadingDoctors(false);
       return;
     }
 
     setDoctors(data || []);
+    setIsLoadingDoctors(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -112,20 +117,26 @@ export const AppointmentBooking = ({ analysisData, onSuccess }: AppointmentBooki
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="doctor">Select Doctor *</Label>
-            <Select value={selectedDoctor} onValueChange={setSelectedDoctor}>
+            <Select value={selectedDoctor} onValueChange={setSelectedDoctor} disabled={isLoadingDoctors}>
               <SelectTrigger>
-                <SelectValue placeholder="Choose a doctor" />
+                <SelectValue placeholder={isLoadingDoctors ? "Loading doctors..." : doctors.length === 0 ? "No doctors available" : "Choose a doctor"} />
               </SelectTrigger>
-              <SelectContent>
-                {doctors.map((doctor) => (
-                  <SelectItem key={doctor.user_id} value={doctor.user_id}>
-                    <div className="flex items-center gap-2">
-                      <User className="w-4 h-4" />
-                      Dr. {doctor.first_name} {doctor.last_name}
-                      {doctor.specialty && ` - ${doctor.specialty}`}
-                    </div>
-                  </SelectItem>
-                ))}
+              <SelectContent className="bg-popover">
+                {doctors.length === 0 ? (
+                  <div className="px-3 py-2 text-sm text-muted-foreground">
+                    No doctors registered yet
+                  </div>
+                ) : (
+                  doctors.map((doctor) => (
+                    <SelectItem key={doctor.user_id} value={doctor.user_id}>
+                      <div className="flex items-center gap-2">
+                        <User className="w-4 h-4" />
+                        Dr. {doctor.first_name} {doctor.last_name}
+                        {doctor.specialty && ` - ${doctor.specialty}`}
+                      </div>
+                    </SelectItem>
+                  ))
+                )}
               </SelectContent>
             </Select>
           </div>
