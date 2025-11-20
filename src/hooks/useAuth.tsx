@@ -7,11 +7,13 @@ interface AuthContextType {
   user: User | null;
   session: Session | null;
   loading: boolean;
+  userRoles: string[];
   signUp: (email: string, password: string, userData: any) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<void>;
   getUserProfile: () => Promise<any>;
   checkQuestionnaireCompleted: () => Promise<boolean>;
+  addRole: (role: 'patient' | 'doctor') => Promise<{ error: any }>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -20,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const [userRoles, setUserRoles] = useState<string[]>([]);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -29,6 +32,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+        
+        // Fetch user roles when session changes
+        if (session?.user) {
+          setTimeout(() => {
+            fetchUserRoles(session.user.id);
+          }, 0);
+        } else {
+          setUserRoles([]);
+        }
       }
     );
 
@@ -37,10 +49,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
+      
+      if (session?.user) {
+        fetchUserRoles(session.user.id);
+      }
     });
 
     return () => subscription.unsubscribe();
   }, []);
+
+  const fetchUserRoles = async (userId: string) => {
+    const { data, error } = await supabase
+      .from('user_roles')
+      .select('role')
+      .eq('user_id', userId);
+
+    if (error) {
+      console.error('Error fetching user roles:', error);
+      return;
+    }
+
+    setUserRoles(data?.map(r => r.role) || []);
+  };
 
   const signUp = async (email: string, password: string, userData: any) => {
     const { error } = await supabase.auth.signUp({
@@ -135,16 +165,49 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return !!data;
   };
 
+  const addRole = async (role: 'patient' | 'doctor') => {
+    if (!user) {
+      return { error: { message: 'User must be logged in' } };
+    }
+
+    const { error } = await supabase
+      .from('user_roles')
+      .insert({ user_id: user.id, role })
+      .select()
+      .single();
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive"
+      });
+      return { error };
+    }
+
+    // Refresh user roles
+    await fetchUserRoles(user.id);
+
+    toast({
+      title: "Success",
+      description: `${role.charAt(0).toUpperCase() + role.slice(1)} role added successfully!`,
+    });
+
+    return { error: null };
+  };
+
   return (
     <AuthContext.Provider value={{
       user,
       session,
       loading,
+      userRoles,
       signUp,
       signIn,
       signOut,
       getUserProfile,
-      checkQuestionnaireCompleted
+      checkQuestionnaireCompleted,
+      addRole
     }}>
       {children}
     </AuthContext.Provider>

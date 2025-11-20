@@ -13,12 +13,12 @@ import { supabase } from "@/integrations/supabase/client";
 const PatientAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { signUp, signIn, user, checkQuestionnaireCompleted } = useAuth();
+  const { signUp, signIn, user, userRoles, checkQuestionnaireCompleted, addRole } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     const checkAndRedirect = async () => {
-      if (user) {
+      if (user && userRoles.includes('patient')) {
         const isCompleted = await checkQuestionnaireCompleted();
         if (isCompleted) {
           navigate('/patient-dashboard');
@@ -28,7 +28,7 @@ const PatientAuth = () => {
       }
     };
     checkAndRedirect();
-  }, [user, navigate, checkQuestionnaireCompleted]);
+  }, [user, userRoles, navigate, checkQuestionnaireCompleted]);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -83,27 +83,38 @@ const PatientAuth = () => {
 
     try {
       const validation = patientSignUpSchema.parse(data);
-      const userData = {
-        first_name: validation.firstName,
-        last_name: validation.lastName,
-        user_type: 'patient'
-      };
       
-      const { error } = await signUp(validation.email, validation.password, userData);
-      
-      if (!error) {
-        // Send confirmation email
-        try {
-          await supabase.functions.invoke('send-confirmation-email', {
-            body: {
-              email: validation.email,
-              firstName: validation.firstName,
-              lastName: validation.lastName
-            }
-          });
-        } catch (emailError) {
-          console.error('Error sending confirmation email:', emailError);
-          // Don't block registration if email fails
+      // Check if user is already signed in
+      if (user) {
+        // Add patient role to existing user
+        const { error } = await addRole('patient');
+        if (!error) {
+          navigate('/questionnaire');
+        }
+      } else {
+        // Create new account
+        const userData = {
+          first_name: validation.firstName,
+          last_name: validation.lastName,
+          user_type: 'patient'
+        };
+        
+        const { error } = await signUp(validation.email, validation.password, userData);
+        
+        if (!error) {
+          // Send confirmation email
+          try {
+            await supabase.functions.invoke('send-confirmation-email', {
+              body: {
+                email: validation.email,
+                firstName: validation.firstName,
+                lastName: validation.lastName
+              }
+            });
+          } catch (emailError) {
+            console.error('Error sending confirmation email:', emailError);
+            // Don't block registration if email fails
+          }
         }
       }
     } catch (error: any) {

@@ -12,14 +12,14 @@ import { doctorSignUpSchema, signInSchema } from "@/lib/validations";
 const DoctorAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const { signUp, signIn, user } = useAuth();
+  const { signUp, signIn, user, userRoles, addRole } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (user) {
+    if (user && userRoles.includes('doctor')) {
       navigate('/doctor-dashboard');
     }
-  }, [user, navigate]);
+  }, [user, userRoles, navigate]);
 
   const handleSignIn = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -70,18 +70,25 @@ const DoctorAuth = () => {
 
     try {
       const validation = doctorSignUpSchema.parse(data);
-      const userData = {
-        first_name: validation.firstName,
-        last_name: validation.lastName,
-        user_type: 'doctor',
-        medical_license_number: validation.medicalLicenseNumber,
-        specialty: validation.specialty
-      };
       
-      const { error } = await signUp(validation.email, validation.password, userData);
-      
-      if (!error) {
-        // User will be redirected after email verification
+      // Check if user is already signed in
+      if (user) {
+        // Add doctor role to existing user
+        const { error } = await addRole('doctor');
+        if (!error) {
+          navigate('/doctor-dashboard');
+        }
+      } else {
+        // Create new account
+        const userData = {
+          first_name: validation.firstName,
+          last_name: validation.lastName,
+          user_type: 'doctor',
+          medical_license_number: validation.medicalLicenseNumber,
+          specialty: validation.specialty
+        };
+        
+        await signUp(validation.email, validation.password, userData);
       }
     } catch (error: any) {
       if (error.errors) {
