@@ -12,6 +12,8 @@ import { doctorSignUpSchema, signInSchema } from "@/lib/validations";
 const DoctorAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const [existingEmail, setExistingEmail] = useState('');
   const { signUp, signIn, user, userRoles, addRole } = useAuth();
   const navigate = useNavigate();
 
@@ -35,6 +37,12 @@ const DoctorAuth = () => {
     try {
       const validation = signInSchema.parse(data);
       const { error } = await signIn(validation.email, validation.password);
+      
+      if (!error && showSignInPrompt) {
+        // User signed in after being prompted - add doctor role
+        await addRole('doctor');
+        setShowSignInPrompt(false);
+      }
       
       if (!error) {
         navigate('/doctor-dashboard');
@@ -95,8 +103,10 @@ const DoctorAuth = () => {
         if (error) {
           // Check if user already exists
           if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+            setExistingEmail(validation.email);
+            setShowSignInPrompt(true);
             setErrors({ 
-              general: 'This email is already registered. Please sign in first using the "Sign In" tab, then you can add the doctor role from your patient dashboard.' 
+              general: 'This email is already registered. Sign in below to add doctor access to your account.' 
             });
           } else {
             setErrors({ general: error.message });
@@ -155,6 +165,13 @@ const DoctorAuth = () => {
               
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
+                  {showSignInPrompt && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-sm text-blue-800">
+                        Sign in with your existing account to add doctor access.
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="email">Medical License Email</Label>
                     <Input
@@ -162,6 +179,7 @@ const DoctorAuth = () => {
                       name="email"
                       type="email"
                       placeholder="doctor@hospital.com"
+                      defaultValue={existingEmail}
                       required
                     />
                     {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
