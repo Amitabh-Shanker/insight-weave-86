@@ -1,0 +1,31 @@
+{
+  "total_samples": 12599,
+  "train_samples": 10709,
+  "val_samples": 1890,
+  "label_distribution_bio": {
+    "O": 81745,
+    "B-DISEASE": 12852,
+    "I-DISEASE": 8541,
+    "B-TREATMENT": 2603,
+    "I-TREATMENT": 1997
+  },
+  "label_distribution_original": {
+    "O": 81745,
+    "D": 21393,
+    "T": 4600
+  },
+  "unique_bio_labels": [
+    "B-DISEASE",
+    "B-TREATMENT",
+    "I-DISEASE",
+    "I-TREATMENT",
+    "O"
+  ],
+  "unique_original_labels": [
+    "D",
+    "O",
+    "T"
+  ],
+  "total_tokens": 107738,
+  "avg_tokens_per_sample": 8.551313596317168
+}

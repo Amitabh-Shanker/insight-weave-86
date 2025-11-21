@@ -1,0 +1,31 @@
+{
+  "model_name": "dmis-lab/biobert-base-cased-v1.1",
+  "training_config": {
+    "NUM_EPOCHS": 12,
+    "BATCH_SIZE": 8,
+    "LEARNING_RATE": 3e-05,
+    "MAX_LENGTH": 512,
+    "VALIDATION_SPLIT": 0.15,
+    "USE_SAMPLE": false,
+    "SAMPLE_SIZE": 1000
+  },
+  "dataset_info": {
+    "train_samples": 10709,
+    "val_samples": 1890,
+    "total_samples": 12599,
+    "train_tokens": 96173,
+    "val_tokens": 11565
+  },
+  "training_time_minutes": 26.164047729969024,
+  "final_metrics": {
+    "eval_loss": 0.00020170117204543203,
+    "eval_precision": 1.0,
+    "eval_recall": 1.0,
+    "eval_f1": 1.0,
+    "eval_accuracy": 1.0,
+    "eval_runtime": 4.1937,
+    "eval_samples_per_second": 450.677,
+    "eval_steps_per_second": 14.307,
+    "epoch": 12.0
+  }
+}

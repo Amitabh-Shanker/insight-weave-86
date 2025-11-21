@@ -1,0 +1,28 @@
+{
+  "label2id": {
+    "B-DISEASE": 0,
+    "B-TREATMENT": 1,
+    "I-DISEASE": 2,
+    "I-TREATMENT": 3,
+    "O": 4
+  },
+  "id2label": {
+    "0": "B-DISEASE",
+    "1": "B-TREATMENT",
+    "2": "I-DISEASE",
+    "3": "I-TREATMENT",
+    "4": "O"
+  },
+  "all_labels": [
+    "B-DISEASE",
+    "B-TREATMENT",
+    "I-DISEASE",
+    "I-TREATMENT",
+    "O"
+  ],
+  "original_labels": [
+    "D",
+    "O",
+    "T"
+  ]
+}

@@ -1,0 +1,11 @@
+
+
+fastapi
+uvicorn[standard]
+transformers>=4.20.0
+torch
+safetensors
+pydantic
+tensorflow  # or tensorflow-cpu if you don't have GPU
+pillow
+numpy
