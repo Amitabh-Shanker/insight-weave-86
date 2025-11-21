@@ -1,12 +1,3 @@
-{
-  "label2id": {
-    "B-SYMPTOM": 0,
-    "I-SYMPTOM": 1,
-    "O": 2
-  },
-  "id2label": {
-    "0": "B-SYMPTOM",
-    "1": "I-SYMPTOM",
-    "2": "O"
-  }
-}
+version https://git-lfs.github.com/spec/v1
+oid sha256:21389d7aeb4fa62242a5b357ad04e73df21cf94002fd01d66b146d15e31b03a2
+size 163
