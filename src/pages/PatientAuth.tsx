@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 const PatientAuth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showSignInPrompt, setShowSignInPrompt] = useState(false);
+  const [existingEmail, setExistingEmail] = useState('');
   const { signUp, signIn, user, userRoles, checkQuestionnaireCompleted, addRole } = useAuth();
   const navigate = useNavigate();
 
@@ -44,6 +46,12 @@ const PatientAuth = () => {
     try {
       const validation = signInSchema.parse(data);
       const { error } = await signIn(validation.email, validation.password);
+      
+      if (!error && showSignInPrompt) {
+        // User signed in after being prompted - add patient role
+        await addRole('patient');
+        setShowSignInPrompt(false);
+      }
       
       if (!error) {
         // Check if questionnaire is completed
@@ -115,6 +123,17 @@ const PatientAuth = () => {
             console.error('Error sending confirmation email:', emailError);
             // Don't block registration if email fails
           }
+        } else {
+          // Check if user already exists
+          if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+            setExistingEmail(validation.email);
+            setShowSignInPrompt(true);
+            setErrors({ 
+              general: 'This email is already registered. Sign in below to add patient access to your account.' 
+            });
+          } else {
+            setErrors({ general: error.message });
+          }
         }
       }
     } catch (error: any) {
@@ -124,6 +143,8 @@ const PatientAuth = () => {
           newErrors[err.path[0]] = err.message;
         });
         setErrors(newErrors);
+      } else if (error.message) {
+        setErrors({ general: error.message });
       }
     } finally {
       setIsLoading(false);
@@ -167,6 +188,13 @@ const PatientAuth = () => {
               
               <TabsContent value="signin">
                 <form onSubmit={handleSignIn} className="space-y-4">
+                  {showSignInPrompt && (
+                    <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-sm text-blue-800">
+                        Sign in with your existing account to add patient access.
+                      </p>
+                    </div>
+                  )}
                   <div className="space-y-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
@@ -174,6 +202,7 @@ const PatientAuth = () => {
                       name="email"
                       type="email"
                       placeholder="patient@example.com"
+                      defaultValue={existingEmail}
                       required
                     />
                     {errors.email && <p className="text-sm text-destructive">{errors.email}</p>}
@@ -201,6 +230,11 @@ const PatientAuth = () => {
               
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
+                  {errors.general && (
+                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <p className="text-sm text-destructive">{errors.general}</p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
