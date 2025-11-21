@@ -103,14 +103,23 @@ const DoctorAuth = () => {
         if (error) {
           // Check if user already exists
           if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
-            setExistingEmail(validation.email);
-            setShowSignInPrompt(true);
-            setErrors({ 
-              general: 'This email is already registered. Sign in below to add doctor access to your account.' 
-            });
+            // Automatically sign in and add doctor role
+            const { error: signInError } = await signIn(validation.email, validation.password);
+            
+            if (signInError) {
+              setErrors({ 
+                general: 'This email is already registered. Please use the correct password.' 
+              });
+            } else {
+              // Successfully signed in, add doctor role
+              await addRole('doctor');
+              navigate('/doctor-dashboard');
+            }
           } else {
             setErrors({ general: error.message });
           }
+        } else {
+          navigate('/doctor-dashboard');
         }
       }
     } catch (error: any) {
