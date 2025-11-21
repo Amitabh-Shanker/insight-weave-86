@@ -123,14 +123,29 @@ const PatientAuth = () => {
             console.error('Error sending confirmation email:', emailError);
             // Don't block registration if email fails
           }
+          navigate('/questionnaire');
         } else {
           // Check if user already exists
           if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
-            setExistingEmail(validation.email);
-            setShowSignInPrompt(true);
-            setErrors({ 
-              general: 'This email is already registered. Sign in below to add patient access to your account.' 
-            });
+            // Automatically sign in and add patient role
+            const { error: signInError } = await signIn(validation.email, validation.password);
+            
+            if (signInError) {
+              setErrors({ 
+                general: 'This email is already registered. Please use the correct password.' 
+              });
+            } else {
+              // Successfully signed in, add patient role
+              await addRole('patient');
+              
+              // Check if questionnaire is completed
+              const isCompleted = await checkQuestionnaireCompleted();
+              if (isCompleted) {
+                navigate('/patient-dashboard');
+              } else {
+                navigate('/questionnaire');
+              }
+            }
           } else {
             setErrors({ general: error.message });
           }
