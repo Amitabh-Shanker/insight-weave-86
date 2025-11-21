@@ -75,7 +75,9 @@ const DoctorAuth = () => {
       if (user) {
         // Add doctor role to existing user
         const { error } = await addRole('doctor');
-        if (!error) {
+        if (error) {
+          setErrors({ general: error.message });
+        } else {
           navigate('/doctor-dashboard');
         }
       } else {
@@ -88,7 +90,18 @@ const DoctorAuth = () => {
           specialty: validation.specialty
         };
         
-        await signUp(validation.email, validation.password, userData);
+        const { error } = await signUp(validation.email, validation.password, userData);
+        
+        if (error) {
+          // Check if user already exists
+          if (error.message?.includes('already registered') || error.message?.includes('User already registered')) {
+            setErrors({ 
+              general: 'This email is already registered. Please sign in first using the "Sign In" tab, then you can add the doctor role from your patient dashboard.' 
+            });
+          } else {
+            setErrors({ general: error.message });
+          }
+        }
       }
     } catch (error: any) {
       if (error.errors) {
@@ -97,6 +110,8 @@ const DoctorAuth = () => {
           newErrors[err.path[0]] = err.message;
         });
         setErrors(newErrors);
+      } else if (error.message) {
+        setErrors({ general: error.message });
       }
     } finally {
       setIsLoading(false);
@@ -174,6 +189,11 @@ const DoctorAuth = () => {
               
               <TabsContent value="signup">
                 <form onSubmit={handleSignUp} className="space-y-4">
+                  {errors.general && (
+                    <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-md">
+                      <p className="text-sm text-destructive">{errors.general}</p>
+                    </div>
+                  )}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="firstName">First Name</Label>
